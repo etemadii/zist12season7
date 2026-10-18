@@ -1,0 +1,359 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import GeneticEngineeringSection from "@/components/GeneticEngineeringSection";
+import RestrictionEnzymeSection from "@/components/RestrictionEnzymeSection";
+import RecombinantDNASection from "@/components/RecombinantDNASection";
+import SelectionSection from "@/components/SelectionSection";
+import TissueEngineeringSection from "@/components/TissueEngineeringSection";
+import StemCellSection from "@/components/StemCellSection";
+import BioinformaticsSection from "@/components/BioinformaticsSection";
+import AgricultureSection from "@/components/AgricultureSection";
+import GlossarySection from "@/components/GlossarySection";
+import ReferencesSection from "@/components/ReferencesSection";
+
+const sections = [
+  { id: "cover", label: "صفحه اول", icon: "🏠" },
+  { id: "toc", label: "فهرست مطالب", icon: "📋" },
+  { id: "genetic-engineering", label: "مهندسی ژنتیک", icon: "🧬" },
+  { id: "restriction-enzyme", label: "آنزیم‌های برش‌دهنده", icon: "✂️" },
+  { id: "recombinant-dna", label: "دنای نوترکیب", icon: "🔄" },
+  { id: "selection", label: "جداسازی یاخته‌های تراژنی", icon: "🔬" },
+  { id: "tissue-engineering", label: "مهندسی بافت", icon: "🫀" },
+  { id: "stem-cells", label: "یاخته‌های بنیادی", icon: "🌱" },
+  { id: "bioinformatics", label: "بیوانفورماتیک", icon: "💻" },
+  { id: "agriculture", label: "کاربردهای زیست‌فناوری", icon: "🌾" },
+  { id: "glossary", label: "واژه‌نامه", icon: "📖" },
+  { id: "references", label: "منابع", icon: "📚" },
+];
+
+export default function Home() {
+  const [activeSection, setActiveSection] = useState("cover");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const el = document.documentElement;
+      const scrollTop = el.scrollTop || document.body.scrollTop;
+      const scrollHeight = el.scrollHeight - el.clientHeight;
+      const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+      setScrollProgress(progress);
+
+      // Update active section
+      const sectionEls = sections.map((s) => document.getElementById(s.id));
+      let current = sections[0].id;
+      for (const el of sectionEls) {
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= 120) current = el.id;
+        }
+      }
+      setActiveSection(current);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    setSidebarOpen(false);
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50" dir="rtl">
+      {/* Progress bar */}
+      <div
+        className="fixed top-0 right-0 h-1 bg-gradient-to-l from-emerald-500 via-blue-500 to-purple-500 z-50 transition-all duration-100"
+        style={{ width: `${scrollProgress}%`, left: `${100 - scrollProgress}%` }}
+      />
+
+      {/* Top Header */}
+      <header className="fixed top-1 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm shadow-sm border-b border-slate-200 no-print">
+        <div className="max-w-screen-2xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
+          {/* Mobile menu button */}
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="lg:hidden p-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors"
+            aria-label="Toggle navigation"
+          >
+            <span className="text-xl">{sidebarOpen ? "✕" : "☰"}</span>
+          </button>
+
+          {/* Title */}
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <span className="text-2xl">🧬</span>
+            <div className="min-w-0">
+              <h1 className="text-base font-bold text-emerald-800 truncate">
+                مهندسی زیست‌فناوری | Genetic Engineering & Biotechnology
+              </h1>
+              <p className="text-xs text-slate-500 hidden sm:block">
+                راهنمای آموزشی تعاملی — Interactive Educational Guide
+              </p>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handlePrint}
+              className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm"
+              title="چاپ / دانلود"
+            >
+              <span>🖨️</span>
+              <span className="hidden sm:inline">چاپ / Print</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile sidebar overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-30 lg:hidden no-print"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar Navigation */}
+      <aside
+        className={`fixed top-14 right-0 bottom-0 w-72 bg-white border-l border-slate-200 z-30 overflow-y-auto transform transition-transform duration-300 no-print
+          ${sidebarOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"}`}
+      >
+        <nav className="p-4">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 px-2">
+            فهرست بخش‌ها
+          </p>
+          <ul className="space-y-1">
+            {sections.map((sec) => (
+              <li key={sec.id}>
+                <button
+                  onClick={() => scrollToSection(sec.id)}
+                  className={`w-full text-right toc-link text-sm transition-all ${
+                    activeSection === sec.id ? "nav-active" : "hover:bg-slate-50"
+                  }`}
+                >
+                  <span className="ml-2 text-lg">{sec.icon}</span>
+                  <span>{sec.label}</span>
+                  {activeSection === sec.id && (
+                    <span className="mr-auto w-2 h-2 bg-emerald-500 rounded-full flex-shrink-0" />
+                  )}
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-6 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <p className="text-xs text-amber-800 font-medium mb-1">💡 راهنما</p>
+            <p className="text-xs text-amber-700">
+              برای دانلود سند، دکمه «چاپ» را فشار دهید و گزینه «ذخیره به عنوان PDF» را انتخاب کنید.
+            </p>
+            <p className="text-xs text-amber-600 mt-1 ltr text-left">
+              Press "Print" → "Save as PDF" to download.
+            </p>
+          </div>
+        </nav>
+      </aside>
+
+      {/* Main Content */}
+      <main
+        ref={contentRef}
+        className="lg:mr-72 pt-14 min-h-screen"
+      >
+        <div className="max-w-5xl mx-auto px-4 py-8 space-y-0">
+
+          {/* ==================== COVER PAGE ==================== */}
+          <section id="cover" className="min-h-screen flex flex-col justify-center items-center text-center py-20 page-break">
+            <div className="max-w-3xl mx-auto">
+              {/* DNA Helix SVG Decoration */}
+              <div className="flex justify-center mb-8">
+                <div className="relative w-32 h-32">
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 opacity-20 animate-pulse" />
+                  <div className="absolute inset-4 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 opacity-20 animate-pulse delay-75" />
+                  <div className="absolute inset-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-600 opacity-20 animate-pulse delay-150" />
+                  <div className="absolute inset-0 flex items-center justify-center text-6xl">🧬</div>
+                </div>
+              </div>
+
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-100 text-emerald-800 rounded-full text-sm font-medium mb-6">
+                <span>📚</span>
+                <span>سند آموزشی زیست‌فناوری — Biotechnology Educational Document</span>
+              </div>
+
+              <h1 className="text-4xl md:text-5xl font-black text-slate-800 mb-4 leading-tight">
+                مهندسی ژنتیک و<br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">
+                  زیست‌فناوری
+                </span>
+              </h1>
+
+              <h2 className="text-xl md:text-2xl font-light text-slate-500 mb-8 ltr">
+                Genetic Engineering & Biotechnology<br />
+                <span className="text-base">An Annotated Educational Reference</span>
+              </h2>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+                {[
+                  { icon: "🎯", title: "مخاطب", sub: "دانش‌آموزان پیشرفته زیست‌شناسی", en: "Advanced Biology Students" },
+                  { icon: "🌐", title: "زبان", sub: "فارسی + انگلیسی", en: "Persian + English" },
+                  { icon: "📄", title: "فرمت", sub: "HTML تعاملی / PDF", en: "Interactive HTML / PDF" },
+                ].map((item) => (
+                  <div key={item.title} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 card-hover">
+                    <div className="text-3xl mb-2">{item.icon}</div>
+                    <div className="text-sm font-bold text-slate-700">{item.title}</div>
+                    <div className="text-sm text-emerald-700 font-medium">{item.sub}</div>
+                    <div className="text-xs text-slate-400 mt-1">{item.en}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Coverage topics */}
+              <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 text-right mb-8">
+                <h3 className="font-bold text-slate-700 mb-4 flex items-center gap-2">
+                  <span>📋</span> سرفصل‌های اصلی این سند
+                </h3>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  {[
+                    "مهندسی ژنتیک و تولید گیاه تراژن",
+                    "آنزیم‌های برش‌دهنده (EcoRI)",
+                    "دنای نوترکیب و پلاسمید",
+                    "جداسازی یاخته‌های تراژنی",
+                    "مهندسی بافت و پلاسمین",
+                    "یاخته‌های بنیادی",
+                    "بیوانفورماتیک و ویروس کرونا",
+                    "کاربردهای زیست‌فناوری در کشاورزی",
+                  ].map((topic) => (
+                    <div key={topic} className="flex items-center gap-2 text-slate-600 py-1">
+                      <span className="w-2 h-2 bg-emerald-500 rounded-full flex-shrink-0" />
+                      <span>{topic}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <button
+                  onClick={() => scrollToSection("toc")}
+                  className="px-8 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
+                >
+                  شروع مطالعه 🚀
+                </button>
+                <button
+                  onClick={handlePrint}
+                  className="px-8 py-3 bg-white text-slate-700 border border-slate-200 rounded-xl font-medium hover:bg-slate-50 transition-all"
+                >
+                  دانلود PDF 📥
+                </button>
+              </div>
+
+              <p className="text-xs text-slate-400 mt-8">
+                تمامی توضیحات بر اساس منابع آزاد و معتبر علمی تهیه شده‌اند. این سند جنبه آموزشی داشته و جایگزین متون کتاب‌های درسی نمی‌شود.
+              </p>
+            </div>
+          </section>
+
+          <hr className="section-divider" />
+
+          {/* ==================== TABLE OF CONTENTS ==================== */}
+          <section id="toc" className="py-12 page-break">
+            <div className="flex items-center gap-3 mb-8">
+              <span className="text-4xl">📋</span>
+              <div>
+                <h2 className="text-3xl font-black text-slate-800">فهرست مطالب</h2>
+                <p className="text-slate-500 text-sm ltr text-left">Table of Contents</p>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+              {sections.slice(2).map((sec, i) => (
+                <button
+                  key={sec.id}
+                  onClick={() => scrollToSection(sec.id)}
+                  className="w-full flex items-center gap-4 px-6 py-4 hover:bg-emerald-50 transition-colors border-b border-slate-100 last:border-0 text-right group"
+                >
+                  <span className="text-2xl">{sec.icon}</span>
+                  <div className="flex-1">
+                    <span className="font-semibold text-slate-700 group-hover:text-emerald-700 transition-colors">
+                      {sec.label}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-slate-400">بخش {i + 1}</span>
+                    <span className="text-slate-300 group-hover:text-emerald-500 transition-colors">←</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {/* Document info */}
+            <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { label: "تعداد بخش‌ها", value: "۱۰", icon: "📑" },
+                { label: "واژه‌نامه", value: "۲۵+ اصطلاح", icon: "📖" },
+                { label: "نمودار و تصویر", value: "۱۲+ شکل", icon: "🖼️" },
+                { label: "منابع", value: "۱۰+ منبع", icon: "🔗" },
+              ].map((stat) => (
+                <div key={stat.label} className="bg-white rounded-xl p-4 text-center shadow-sm border border-slate-100">
+                  <div className="text-2xl mb-1">{stat.icon}</div>
+                  <div className="text-xl font-bold text-emerald-700">{stat.value}</div>
+                  <div className="text-xs text-slate-500">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <hr className="section-divider" />
+
+          {/* ==================== CONTENT SECTIONS ==================== */}
+          <GeneticEngineeringSection />
+          <hr className="section-divider" />
+
+          <RestrictionEnzymeSection />
+          <hr className="section-divider" />
+
+          <RecombinantDNASection />
+          <hr className="section-divider" />
+
+          <SelectionSection />
+          <hr className="section-divider" />
+
+          <TissueEngineeringSection />
+          <hr className="section-divider" />
+
+          <StemCellSection />
+          <hr className="section-divider" />
+
+          <BioinformaticsSection />
+          <hr className="section-divider" />
+
+          <AgricultureSection />
+          <hr className="section-divider" />
+
+          <GlossarySection />
+          <hr className="section-divider" />
+
+          <ReferencesSection />
+
+          {/* Footer */}
+          <footer className="py-12 text-center text-sm text-slate-400 border-t border-slate-200 mt-8">
+            <p className="mb-2">
+              📚 این سند برای اهداف آموزشی تهیه شده است — For Educational Purposes Only
+            </p>
+            <p className="text-xs">
+              محتوا بر اساس منابع آزاد علمی تدوین شده و حقوق متون اصلی محفوظ است.
+            </p>
+          </footer>
+        </div>
+      </main>
+    </div>
+  );
+}
